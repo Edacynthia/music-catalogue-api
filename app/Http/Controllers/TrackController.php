@@ -15,14 +15,14 @@ class TrackController extends Controller
     /**
      * Display a paginated list of the authenticated user's tracks.
      */
-   public function index(Request $request): JsonResponse
+   public function index(Request $request)
 {
     $request->validate([
-    'genre' => ['sometimes', 'string', 'max:100'],
-    'publication_status' => ['sometimes', 'in:draft,published'],
-    'search' => ['sometimes', 'string', 'max:255'],
-    'page' => ['sometimes', 'integer', 'min:1'],
-]);
+        'genre' => ['sometimes', 'string', 'max:100'],
+        'publication_status' => ['sometimes', 'in:draft,published'],
+        'search' => ['sometimes', 'string', 'max:255'],
+        'page' => ['sometimes', 'integer', 'min:1'],
+    ]);
 
     $query = $request->user()->tracks();
 
@@ -51,27 +51,27 @@ class TrackController extends Controller
         ->paginate(10)
         ->withQueryString();
 
-    return response()->json([
-        'success' => true,
-       'data' => TrackResource::collection($tracks),
-    ]);
+    return TrackResource::collection($tracks)
+        ->additional([
+            'success' => true,
+        ]);
 }
 
     /**
      * Store a newly created track.
      */
-   public function store(StoreTrackRequest $request): JsonResponse
-{
-    $track = $request->user()->tracks()->create(
-        $request->validated()
-    );
+    public function store(StoreTrackRequest $request): JsonResponse
+    {
+        $track = $request->user()->tracks()->create(
+            $request->validated()
+        );
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Track created successfully.',
-       'data' => new TrackResource($track),
-    ], 201);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'Track created successfully.',
+            'data' => new TrackResource($track),
+        ], 201);
+    }
 
     /**
      * Display a specific track belonging to the authenticated user.
@@ -90,26 +90,26 @@ class TrackController extends Controller
      * Update a specific track belonging to the authenticated user.
      */
     public function update(
-    UpdateTrackRequest $request,
-    Track $track
-): JsonResponse {
-    Gate::authorize('update', $track);
+        UpdateTrackRequest $request,
+        Track $track
+    ): JsonResponse {
+        Gate::authorize('update', $track);
 
-    $track->update($request->validated());
+        $track->update($request->validated());
 
-    return response()->json([
-        'success' => true,
-        'message' => 'Track updated successfully.',
-        'data' => new TrackResource($track->fresh()),
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'message' => 'Track updated successfully.',
+            'data' => new TrackResource($track->fresh()),
+        ]);
+    }
 
     /**
      * Remove a specific track belonging to the authenticated user.
      */
     public function destroy(Request $request, Track $track): JsonResponse
     {
-         Gate::authorize('delete', $track);
+        Gate::authorize('delete', $track);
 
         $track->delete();
 
