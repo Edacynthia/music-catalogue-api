@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Track;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class TrackController extends Controller
 {
@@ -81,7 +82,7 @@ class TrackController extends Controller
      */
     public function show(Request $request, Track $track): JsonResponse
     {
-        abort_unless($track->user_id === $request->user()->id, 404);
+        Gate::authorize('view', $track);
 
         return response()->json([
             'success' => true,
@@ -94,7 +95,7 @@ class TrackController extends Controller
      */
     public function update(Request $request, Track $track): JsonResponse
     {
-        abort_unless($track->user_id === $request->user()->id, 404);
+       Gate::authorize('update', $track);
 
         $validated = $request->validate([
             'title' => ['sometimes', 'required', 'string', 'max:255'],
@@ -119,7 +120,7 @@ class TrackController extends Controller
      */
     public function destroy(Request $request, Track $track): JsonResponse
     {
-        abort_unless($track->user_id === $request->user()->id, 404);
+         Gate::authorize('delete', $track);
 
         $track->delete();
 
