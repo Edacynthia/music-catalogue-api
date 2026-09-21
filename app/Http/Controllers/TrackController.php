@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTrackRequest;
+use App\Http\Requests\UpdateTrackRequest;
 use App\Models\Track;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -57,25 +59,18 @@ class TrackController extends Controller
     /**
      * Store a newly created track.
      */
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'artist_name' => ['required', 'string', 'max:255'],
-            'genre' => ['required', 'string', 'max:100'],
-            'duration' => ['required', 'integer', 'min:1'],
-            'release_date' => ['required', 'date'],
-            'publication_status' => ['required', 'in:draft,published'],
-        ]);
+   public function store(StoreTrackRequest $request): JsonResponse
+{
+    $track = $request->user()->tracks()->create(
+        $request->validated()
+    );
 
-        $track = $request->user()->tracks()->create($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Track created successfully.',
-            'data' => $track,
-        ], 201);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Track created successfully.',
+        'data' => $track,
+    ], 201);
+}
 
     /**
      * Display a specific track belonging to the authenticated user.
@@ -93,27 +88,20 @@ class TrackController extends Controller
     /**
      * Update a specific track belonging to the authenticated user.
      */
-    public function update(Request $request, Track $track): JsonResponse
-    {
-       Gate::authorize('update', $track);
+    public function update(
+    UpdateTrackRequest $request,
+    Track $track
+): JsonResponse {
+    Gate::authorize('update', $track);
 
-        $validated = $request->validate([
-            'title' => ['sometimes', 'required', 'string', 'max:255'],
-            'artist_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'genre' => ['sometimes', 'required', 'string', 'max:100'],
-            'duration' => ['sometimes', 'required', 'integer', 'min:1'],
-            'release_date' => ['sometimes', 'required', 'date'],
-            'publication_status' => ['sometimes', 'required', 'in:draft,published'],
-        ]);
+    $track->update($request->validated());
 
-        $track->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Track updated successfully.',
-            'data' => $track->fresh(),
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Track updated successfully.',
+        'data' => $track->fresh(),
+    ]);
+}
 
     /**
      * Remove a specific track belonging to the authenticated user.
