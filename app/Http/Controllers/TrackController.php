@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTrackRequest;
 use App\Http\Requests\UpdateTrackRequest;
+use App\Http\Resources\TrackResource;
 use App\Models\Track;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class TrackController extends Controller
 
     return response()->json([
         'success' => true,
-        'data' => $tracks,
+       'data' => TrackResource::collection($tracks),
     ]);
 }
 
@@ -68,7 +69,7 @@ class TrackController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Track created successfully.',
-        'data' => $track,
+       'data' => new TrackResource($track),
     ], 201);
 }
 
@@ -81,7 +82,7 @@ class TrackController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $track,
+            'data' => new TrackResource($track),
         ]);
     }
 
@@ -99,7 +100,7 @@ class TrackController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Track updated successfully.',
-        'data' => $track->fresh(),
+        'data' => new TrackResource($track->fresh()),
     ]);
 }
 
